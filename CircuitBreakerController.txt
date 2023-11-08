@@ -1,0 +1,28 @@
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@RestController
+@EnableCircuitBreaker
+public class DemoController {
+
+    private final RestTemplate restTemplate;
+
+    public DemoController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    @GetMapping("/callRemoteService")
+    @HystrixCommand(fallbackMethod = "fallbackMethod")
+    public String callRemoteService() {
+        // Simulate making a remote service call (replace with your actual service call)
+        String response = restTemplate.getForObject("http://payment-service/api/payment", String.class);
+        return "Response from payment-service: " + response;
+    }
+
+    public String fallbackMethod() {
+        return "Fallback response: Payment service is currently unavailable.";
+    }
+}
